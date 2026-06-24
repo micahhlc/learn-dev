@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Server Performance Comparison</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    line-height: 1.6;
+    padding: 40px 48px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 1.5rem; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+  .subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 48px; }
+
+  h2 {
+    font-size: 0.82rem; font-weight: 700; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 12px; margin-top: 48px;
+  }
+  .section-desc { color: #64748b; font-size: 0.85rem; margin-bottom: 14px; }
+
+  /* ── TABLES ── */
+  .card {
+    background: #141c2e; border: 1px solid #1e293b;
+    border-radius: 10px; overflow: hidden; margin-bottom: 8px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+  thead tr { background: #1a2540; }
+  th {
+    padding: 11px 14px; text-align: left; font-weight: 600;
+    color: #64748b; font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  td { padding: 11px 14px; border-top: 1px solid #1a2035; vertical-align: top; }
+  tbody tr:hover { background: #0f1825; }
+
+  code {
+    background: #1e293b; color: #e2e8f0;
+    padding: 1px 6px; border-radius: 4px;
+    font-family: "SF Mono", "Fira Code", monospace; font-size: 0.78rem;
+  }
+
+  .good { color: #4ade80; font-weight: 600; }
+  .ok   { color: #facc15; font-weight: 600; }
+  .bad  { color: #f87171; font-weight: 600; }
+  .note { color: #64748b; font-size: 0.78rem; display: block; margin-top: 2px; }
+
+  .lang-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 0.72rem; font-weight: 600; white-space: nowrap;
+  }
+  .model-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 0.72rem; font-weight: 600; white-space: nowrap;
+  }
+  .m1 { background: #1e293b; color: #94a3b8; }
+  .m2 { background: #1e3a5f; color: #93c5fd; }
+  .m3 { background: #1a3d2b; color: #6ee7b7; }
+
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    margin-bottom: 14px; font-size: 0.78rem; color: #64748b;
+  }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .footnote { color: #475569; font-size: 0.78rem; margin-top: 10px; }
+  .mem-by-lang { font-size: 0.8rem; line-height: 1.8; }
+
+  /* ── SECTION 4 CONTROLS ── */
+  .s4-controls {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 24px; margin-bottom: 20px;
+  }
+
+  .control-group { display: flex; flex-direction: column; gap: 6px; }
+  .control-label {
+    font-size: 0.67rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #475569;
+  }
+  .btn-row { display: flex; gap: 4px; flex-wrap: wrap; }
+
+  /* model buttons */
+  .model-btn {
+    padding: 6px 14px; border: 1px solid #1e293b; border-radius: 6px;
+    cursor: pointer; font-size: 0.8rem; font-weight: 500;
+    background: #0a0e1a; color: #475569; transition: all 0.15s;
+  }
+  .model-btn:hover { color: #94a3b8; border-color: #334155; }
+  .model-btn.active[data-model="1"] { background: #1e293b; color: #94a3b8; border-color: #334155; }
+  .model-btn.active[data-model="2"] { background: #1e3a5f; color: #93c5fd; border-color: #3b5f8a; }
+  .model-btn.active[data-model="3"] { background: #1a3d2b; color: #6ee7b7; border-color: #2a6648; }
+
+  /* language filter buttons */
+  .lang-btn {
+    padding: 6px 14px; border: 1px solid #1e293b; border-radius: 6px;
+    cursor: pointer; font-size: 0.8rem; font-weight: 500;
+    background: #0a0e1a; color: #475569; transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .lang-btn:hover { color: #94a3b8; border-color: #334155; }
+  .lang-btn.active { border-color: var(--dot-color); color: #f8fafc; background: #141c2e; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dot-color); }
+
+  /* ── CARDS GRID ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+    gap: 16px;
+  }
+
+  .lang-card {
+    border: 1px solid #1e293b; border-radius: 10px;
+    overflow: hidden; background: #0d1420;
+  }
+  .lang-card.hidden { display: none; }
+
+  .card-header {
+    padding: 12px 16px; display: flex; align-items: center;
+    justify-content: space-between; border-bottom: 1px solid #1e293b;
+  }
+  .card-lang-name { font-weight: 700; font-size: 0.95rem; }
+
+  .native-badge {
+    font-size: 0.7rem; font-weight: 600;
+    padding: 2px 8px; border-radius: 4px;
+  }
+  .native-yes { background: #1a3d2b; color: #4ade80; }
+  .native-no  { background: #3d1a0a; color: #fb923c; }
+  .native-na  { background: #1e293b; color: #475569; }
+
+  .card-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 14px; }
+  .card-desc { color: #94a3b8; font-size: 0.85rem; line-height: 1.55; }
+  .card-section-label {
+    font-size: 0.67rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #475569; margin-bottom: 6px;
+  }
+
+  .mem-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  .mem-table th {
+    padding: 5px 8px; background: #1a2035; color: #64748b;
+    font-size: 0.67rem; text-transform: uppercase;
+    letter-spacing: 0.05em; font-weight: 600;
+  }
+  .mem-table td { padding: 6px 8px; border-top: 1px solid #1a2035; color: #e2e8f0; }
+  .mem-note { color: #475569; font-size: 0.75rem; margin-top: 5px; }
+
+  .cli-block {
+    background: #070c14; border: 1px solid #1e293b; border-radius: 6px;
+    padding: 10px 14px;
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 0.78rem; color: #e2e8f0;
+    white-space: pre; overflow-x: auto; line-height: 1.65;
+  }
+
+  .na-card {
+    padding: 28px; color: #334155; font-size: 0.85rem;
+    font-style: italic; background: #090e1a;
+    border-radius: 6px; text-align: center;
+  }
+
+  .divider { border: none; border-top: 1px solid #1e293b; margin: 48px 0 0; }
+</style>
+</head>
+<body>
+
+<h1>Web Server Comparison</h1>
+<p class="subtitle">Python · Node.js · Swift · Go — static file serving, local dev context</p>
+
+<!-- ── 1. RAW PERFORMANCE ── -->
+<h2>1 · Raw Performance</h2>
+<p class="section-desc">Requests/sec serving small static files using each language's best concurrency model.</p>
+<div class="legend">
+  <span><span class="good">●</span> fast</span>
+  <span><span class="ok">●</span> adequate</span>
+  <span><span class="bad">●</span> slow</span>
+</div>
+<div class="card">
+  <table>
+    <thead><tr>
+      <th>Language</th><th>Req/sec</th><th>Startup</th><th>Latency p99</th><th>Notes</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="lang-badge" style="background:#1e3a5f;color:#60a5fa">Python</span></td>
+        <td><span class="bad">500–2,000</span></td>
+        <td><span class="good">~50ms</span></td>
+        <td><span class="bad">high under load</span></td>
+        <td>GIL limits true parallelism even with threads</td>
+      </tr>
+      <tr>
+        <td><span class="lang-badge" style="background:#1a3d2b;color:#4ade80">Node.js</span></td>
+        <td><span class="ok">15,000–30,000</span></td>
+        <td><span class="ok">~100ms</span></td>
+        <td><span class="good">low</span></td>
+        <td>Event loop shines on I/O-bound work</td>
+      </tr>
+      <tr>
+        <td><span class="lang-badge" style="background:#3d1a1a;color:#f87171">Swift</span></td>
+        <td><span class="ok">20,000–50,000</span><span class="note">with SwiftNIO</span></td>
+        <td><span class="bad">1–3s</span><span class="note">compile on first run</span></td>
+        <td><span class="good">very low</span></td>
+        <td>No GC pauses; simple server closer to Python</td>
+      </tr>
+      <tr>
+        <td><span class="lang-badge" style="background:#1a2e3d;color:#38bdf8">Go</span></td>
+        <td><span class="good">40,000–80,000</span></td>
+        <td><span class="good">~10ms</span><span class="note">pre-compiled binary</span></td>
+        <td><span class="good">very low</span></td>
+        <td>Goroutines extremely cheap; <code>net/http</code> is stdlib</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<p class="footnote">* Python and our simple Swift server are single-threaded — real req/sec is much lower without event-loop or goroutines.</p>
+
+<!-- ── 2. MEMORY ── -->
+<h2>2 · Memory Usage</h2>
+<p class="section-desc">RSS at idle and under concurrent load using each language's best concurrency model.</p>
+<div class="card">
+  <table>
+    <thead><tr>
+      <th>Language</th><th>Idle</th><th>10 concurrent</th><th>100 concurrent</th><th>1,000 concurrent</th><th>Why</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="lang-badge" style="background:#1e3a5f;color:#60a5fa">Python</span></td>
+        <td><span class="good">~15 MB</span></td>
+        <td><span class="good">~15 MB</span><span class="note">queued</span></td>
+        <td><span class="ok">~30 MB</span><span class="note">threaded</span></td>
+        <td><span class="bad">~300 MB</span><span class="note">threaded</span></td>
+        <td>~256 KB per OS thread</td>
+      </tr>
+      <tr>
+        <td><span class="lang-badge" style="background:#1a3d2b;color:#4ade80">Node.js</span></td>
+        <td><span class="bad">~50 MB</span></td>
+        <td><span class="ok">~52 MB</span></td>
+        <td><span class="ok">~60 MB</span></td>
+        <td><span class="ok">~80–100 MB</span></td>
+        <td>V8 runtime heavy at idle; event loop scales flat</td>
+      </tr>
+      <tr>
+        <td><span class="lang-badge" style="background:#3d1a1a;color:#f87171">Swift (GCD)</span></td>
+        <td><span class="good">~4–6 MB</span></td>
+        <td><span class="ok">~10 MB</span></td>
+        <td><span class="bad">~55 MB</span><span class="note">512 KB/thread</span></td>
+        <td><span class="bad">~520 MB</span><span class="note">512 KB/thread</span></td>
+        <td>GCD threads expensive; SwiftNIO fixes this</td>
+      </tr>
+      <tr>
+        <td><span class="lang-badge" style="background:#3d1a1a;color:#f87171">Swift (NIO)</span></td>
+        <td><span class="good">~4–6 MB</span></td>
+        <td><span class="good">~6 MB</span></td>
+        <td><span class="good">~10 MB</span></td>
+        <td><span class="good">~25 MB</span></td>
+        <td>No GC, ARC only — best-in-class memory</td>
+      </tr>
+      <tr>
+        <td><span class="lang-badge" style="background:#1a2e3d;color:#38bdf8">Go</span></td>
+        <td><span class="good">~8–12 MB</span></td>
+        <td><span class="good">~9 MB</span></td>
+        <td><span class="good">~12 MB</span></td>
+        <td><span class="good">~30 MB</span></td>
+        <td>Goroutines start at 2–8 KB (not 512 KB OS threads)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── 3. THREE MODELS ── -->
+<h2>3 · The Three Concurrency Models</h2>
+<p class="section-desc">Every web server is built on one of these foundations — the model determines how simultaneous requests are handled.</p>
+<div class="card">
+  <table>
+    <thead><tr>
+      <th>Model</th>
+      <th>How it works</th>
+      <th>Mem / connection</th>
+      <th>Memory by language (idle → 1k concurrent)</th>
+      <th>CPU parallelism</th>
+      <th>Best for</th>
+      <th>Worst for</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="model-badge m1">Single-threaded</span></td>
+        <td>One request finishes entirely before the next starts. Queue builds up.</td>
+        <td><span class="good">~0 extra</span></td>
+        <td>
+          <div class="mem-by-lang">
+            <span style="color:#60a5fa">Python</span> 15 → 15 MB (flat)<br>
+            <span style="color:#4ade80">Node.js</span> N/A<br>
+            <span style="color:#f87171">Swift</span> 4 → 5 MB (flat)<br>
+            <span style="color:#38bdf8">Go</span> N/A
+          </div>
+        </td>
+        <td><span class="bad">None — 1 core</span></td>
+        <td>Local dev, scripts</td>
+        <td>Any real concurrency</td>
+      </tr>
+      <tr>
+        <td><span class="model-badge m2">Thread-per-connection</span></td>
+        <td>Each connection gets its own OS thread. Threads run in parallel.</td>
+        <td><span class="bad">256–512 KB/thread</span></td>
+        <td>
+          <div class="mem-by-lang">
+            <span style="color:#60a5fa">Python</span> 15 → 270 MB (~256 KB/thread)<br>
+            <span style="color:#4ade80">Node.js</span> 50 → N/A (~20 MB/worker isolate)<br>
+            <span style="color:#f87171">Swift</span> 4 → 520 MB (~512 KB/thread)<br>
+            <span style="color:#38bdf8">Go</span> 8 → 30 MB (~2–8 KB/goroutine ✓)
+          </div>
+        </td>
+        <td><span class="ok">Yes, RAM-limited</span></td>
+        <td>Moderate concurrency</td>
+        <td>1,000+ connections</td>
+      </tr>
+      <tr>
+        <td><span class="model-badge m3">Event loop / goroutines</span></td>
+        <td>Single thread processes I/O events as they arrive. Goroutines are virtual threads scheduled by the runtime — not OS threads.</td>
+        <td><span class="good">~1–8 KB/conn</span></td>
+        <td>
+          <div class="mem-by-lang">
+            <span style="color:#60a5fa">Python</span> 20 → 50 MB (asyncio/uvicorn)<br>
+            <span style="color:#4ade80">Node.js</span> 50 → 100 MB (V8 baseline heavy)<br>
+            <span style="color:#f87171">Swift</span> 4 → 25 MB (SwiftNIO, best-in-class ✓)<br>
+            <span style="color:#38bdf8">Go</span> 8 → 30 MB (goroutines, near-NIO)
+          </div>
+        </td>
+        <td><span class="good">Yes — multi-core</span></td>
+        <td>Production, high concurrency</td>
+        <td>CPU-heavy on single loop</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── 4. INTERACTIVE ── -->
+<h2>4 · Language × Model Detail</h2>
+
+<div class="s4-controls">
+  <div class="control-group">
+    <div class="control-label">Model</div>
+    <div class="btn-row" id="modelBtns">
+      <button class="model-btn active" data-model="1">Single-threaded</button>
+      <button class="model-btn" data-model="2">Thread-per-connection</button>
+      <button class="model-btn" data-model="3">Event loop / Goroutines</button>
+    </div>
+  </div>
+  <div class="control-group">
+    <div class="control-label">Language</div>
+    <div class="btn-row" id="langBtns">
+      <button class="lang-btn active" data-lang="all" style="--dot-color:#64748b"><span class="dot"></span>All</button>
+      <button class="lang-btn" data-lang="python" style="--dot-color:#60a5fa"><span class="dot"></span>Python</button>
+      <button class="lang-btn" data-lang="node"   style="--dot-color:#4ade80"><span class="dot"></span>Node.js</button>
+      <button class="lang-btn" data-lang="swift"  style="--dot-color:#f87171"><span class="dot"></span>Swift</button>
+      <button class="lang-btn" data-lang="go"     style="--dot-color:#38bdf8"><span class="dot"></span>Go</button>
+    </div>
+  </div>
+</div>
+
+<div class="cards-grid" id="cardsGrid"></div>
+
+<hr class="divider">
+<p class="footnote" style="margin-top:16px;text-align:center">For local dev (1 browser tab), all four are equally fast. These differences matter at hundreds of concurrent connections or production scale.</p>
+
+<script>
+const DATA = {
+  python: {
+    name: 'Python', color: '#60a5fa',
+    models: {
+      1: {
+        desc: 'http.server stdlib module. One request finishes entirely before the next starts. A queue builds under any concurrency — second request waits for the first to fully complete.',
+        native: true, nativeNote: 'stdlib — zero install',
+        mem: { idle: '~15 MB', c10: '~15 MB', c100: '~15 MB', c1000: '~15 MB' },
+        memNote: 'No threads created — flat memory regardless of queue depth',
+        cli: 'python3 -m http.server 8080'
+      },
+      2: {
+        desc: 'ThreadingTCPServer wraps SimpleHTTPRequestHandler. Each connection gets an OS thread. True I/O parallelism, but the GIL still serializes CPU-bound work across threads.',
+        native: true, nativeNote: 'stdlib — socketserver module, no install',
+        mem: { idle: '~15 MB', c10: '~18 MB', c100: '~40 MB', c1000: '~270 MB' },
+        memNote: '~256 KB per OS thread stack',
+        cli: `python3 -c "
+import socketserver, http.server
+Handler = http.server.SimpleHTTPRequestHandler
+socketserver.ThreadingTCPServer(
+    ('', 8080), Handler
+).serve_forever()
+"`
+      },
+      3: {
+        desc: 'asyncio event loop runs coroutines without blocking. aiohttp or uvicorn provides the HTTP layer. Single thread, non-blocking I/O — handles thousands of connections. Unlike http.server, uvicorn requires you to write an ASGI app.py handler — it is a framework host, not a drop-in static server.',
+        native: false, nativeNote: 'asyncio is stdlib; aiohttp/uvicorn needs pip install',
+        mem: { idle: '~20 MB', c10: '~22 MB', c100: '~28 MB', c1000: '~50 MB' },
+        memNote: 'Coroutines ~1 KB each — flat scaling under load',
+        cli: `# Option A — aiohttp
+pip install aiohttp
+python3 -m aiohttp.web
+
+# Option B — uvicorn (ASGI)
+# Unlike http.server, uvicorn needs an app.py with an ASGI handler.
+# It cannot serve static files standalone — you write the handler:
+#
+#   async def app(scope, receive, send): ...
+#
+# Then run:
+pip install uvicorn
+uvicorn app:app --host 0.0.0.0 --port 8080`
+      }
+    }
+  },
+  node: {
+    name: 'Node.js', color: '#4ade80',
+    models: {
+      1: {
+        desc: "Node.js has no true blocking HTTP mode. The http module is always event-loop based. There is no built-in equivalent to Python's single-threaded blocking server.",
+        native: null, nativeNote: 'N/A — Node has no blocking HTTP mode',
+        mem: null, memNote: null, cli: null
+      },
+      2: {
+        desc: 'worker_threads spawns OS threads, each with a full V8 isolate (~20 MB). Possible but not idiomatic — almost no Node.js developer uses threads for HTTP serving.',
+        native: true, nativeNote: 'stdlib — worker_threads, but strongly non-idiomatic',
+        mem: { idle: '~50 MB', c10: '~90 MB', c100: 'not practical', c1000: 'not practical' },
+        memNote: '~20 MB per V8 worker isolate — extremely expensive',
+        cli: '# No standard one-liner. Node.js devs universally avoid\n# this pattern for HTTP serving.'
+      },
+      3: {
+        desc: "The default and only real Node mode. http.createServer() runs on libuv's event loop. A single thread handles thousands of connections via non-blocking callbacks and promises.",
+        native: true, nativeNote: 'stdlib — http module, zero install',
+        mem: { idle: '~50 MB', c10: '~52 MB', c100: '~60 MB', c1000: '~80–100 MB' },
+        memNote: 'V8 runtime heavy at idle, but event loop scales flat',
+        cli: `# stdlib one-liner (zero install)
+node -e "
+const http = require('http'), fs = require('fs'), path = require('path');
+http.createServer((req, res) => {
+  const f = path.join('.', req.url === '/' ? 'index.html' : req.url);
+  fs.readFile(f, (e, d) => e
+    ? res.writeHead(404).end('Not found')
+    : res.writeHead(200).end(d));
+}).listen(8080, () => console.log('http://localhost:8080'));
+"
+
+# Or with npx (~5 MB packages, first run download)
+npx serve .
+npx http-server . -p 8080`
+      }
+    }
+  },
+  swift: {
+    name: 'Swift', color: '#f87171',
+    models: {
+      1: {
+        desc: 'Raw POSIX sockets via Darwin. accept() → recv() → handle() → send() → close() in a tight loop. Nothing runs in parallel — each request serializes the entire server.',
+        native: true, nativeNote: 'stdlib — Foundation + Darwin POSIX, zero install',
+        mem: { idle: '~4–6 MB', c10: '~5 MB', c100: '~5 MB', c1000: '~5 MB' },
+        memNote: 'Queue builds but zero extra memory allocated per connection',
+        cli: `# Requires server.swift (original blocking version)
+swift server.swift .
+
+# Serve a specific directory
+swift server.swift /path/to/public`
+      },
+      2: {
+        desc: 'DispatchQueue.global().async wraps each accepted connection. GCD allocates a thread from its pool per request. Requests run concurrently, but each OS thread costs 512 KB of stack.',
+        native: true, nativeNote: 'stdlib — DispatchQueue (GCD), zero install',
+        mem: { idle: '~4–6 MB', c10: '~10 MB', c100: '~55 MB', c1000: '~520 MB' },
+        memNote: '~512 KB default OS thread stack — balloons fast at scale',
+        cli: `# Requires server.swift (updated DispatchQueue version)
+swift server.swift .`
+      },
+      3: {
+        desc: 'SwiftNIO event loop groups with non-blocking channel pipelines. Same architecture as Node libuv but without GC pauses — ARC reference counting only. Best-in-class memory at scale.',
+        native: false, nativeNote: 'needs Package.swift + SwiftNIO dep (Swift Package Manager)',
+        mem: { idle: '~4–6 MB', c10: '~6 MB', c100: '~10 MB', c1000: '~25 MB' },
+        memNote: 'No garbage collector — ARC only. Lowest memory of all four languages at scale.',
+        cli: `# One-time project setup
+swift package init --type executable
+# Add SwiftNIO to Package.swift, then:
+
+swift build -c release
+.build/release/MyServer`
+      }
+    }
+  },
+  go: {
+    name: 'Go', color: '#38bdf8',
+    models: {
+      1: {
+        desc: 'Not idiomatic in Go. Goroutines start at just 2–8 KB vs 512 KB for an OS thread — so cheap that Go always spawns one per request. There is no meaningful single-threaded HTTP mode.',
+        native: null, nativeNote: 'N/A — Go always uses goroutines',
+        mem: null, memNote: null, cli: null
+      },
+      2: {
+        desc: "net/http spawns one goroutine per request by default. Goroutines look like threads but are scheduled by Go's runtime — 2–8 KB starting stack that grows dynamically only as needed.",
+        native: true, nativeNote: 'stdlib — net/http, zero install, zero setup',
+        mem: { idle: '~8–12 MB', c10: '~9 MB', c100: '~12 MB', c1000: '~30 MB' },
+        memNote: 'Goroutine stacks start at ~2–8 KB and grow only as needed',
+        cli: `# server.go — 5 lines, zero deps
+cat > server.go << 'EOF'
+package main
+import "net/http"
+func main() {
+    http.Handle("/", http.FileServer(http.Dir(".")))
+    http.ListenAndServe(":8080", nil)
+}
+EOF
+
+go run server.go
+
+# Or compile to a binary
+go build -o server && ./server`
+      },
+      3: {
+        desc: "Go's goroutine scheduler IS an event loop internally — net/http + goroutines already gives event-loop-level efficiency. The boundary between models 2 and 3 is blurred in Go. For extreme throughput: fasthttp bypasses net/http entirely.",
+        native: true, nativeNote: 'stdlib — net/http; fasthttp needs go get',
+        mem: { idle: '~8–12 MB', c10: '~9 MB', c100: '~12 MB', c1000: '~30 MB' },
+        memNote: 'Same as goroutine model — runtime scheduler handles both identically',
+        cli: `# Standard net/http (goroutines already behave like an event loop)
+go run server.go
+
+# Maximum throughput — fasthttp (bypasses net/http)
+go get github.com/valyala/fasthttp
+go run fastserver.go`
+      }
+    }
+  }
+};
+
+const LANGS = ['python', 'node', 'swift', 'go'];
+let activeLang = 'all';
+let activeModel = '1';
+
+function memTable(mem, memNote) {
+  if (!mem) return '';
+  return `
+    <table class="mem-table">
+      <thead><tr>
+        <th>Idle</th><th>10 conn</th><th>100 conn</th><th>1,000 conn</th>
+      </tr></thead>
+      <tbody><tr>
+        <td>${mem.idle}</td><td>${mem.c10}</td><td>${mem.c100}</td><td>${mem.c1000}</td>
+      </tr></tbody>
+    </table>
+    ${memNote ? `<div class="mem-note">${memNote}</div>` : ''}`;
+}
+
+function cliBlock(cli) {
+  if (!cli) return '';
+  return `<div class="cli-block">${cli.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
+}
+
+function nativeBadge(native, note) {
+  if (native === null) return `<span class="native-badge native-na">${note}</span>`;
+  if (native) return `<span class="native-badge native-yes" title="${note}">stdlib ✓</span>`;
+  return `<span class="native-badge native-no" title="${note}">needs install</span>`;
+}
+
+function renderCards() {
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = '';
+
+  LANGS.forEach(lang => {
+    const d = DATA[lang];
+    const m = d.models[activeModel];
+    const hidden = activeLang !== 'all' && activeLang !== lang;
+    const isNA = m.native === null;
+
+    const card = document.createElement('div');
+    card.className = 'lang-card' + (hidden ? ' hidden' : '');
+    card.dataset.lang = lang;
+
+    if (isNA) {
+      card.innerHTML = `
+        <div class="card-header" style="border-left:3px solid ${d.color}">
+          <span class="card-lang-name" style="color:${d.color}">${d.name}</span>
+          ${nativeBadge(m.native, m.nativeNote)}
+        </div>
+        <div class="card-body">
+          <div class="na-card">${m.desc}</div>
+        </div>`;
+    } else {
+      card.innerHTML = `
+        <div class="card-header" style="border-left:3px solid ${d.color}">
+          <span class="card-lang-name" style="color:${d.color}">${d.name}</span>
+          ${nativeBadge(m.native, m.nativeNote)}
+        </div>
+        <div class="card-body">
+          <div class="card-desc">${m.desc}</div>
+          <div>
+            <div class="card-section-label">Memory usage</div>
+            ${memTable(m.mem, m.memNote)}
+          </div>
+          <div>
+            <div class="card-section-label">CLI command</div>
+            ${cliBlock(m.cli)}
+          </div>
+        </div>`;
+    }
+    grid.appendChild(card);
+  });
+}
+
+renderCards();
+
+document.getElementById('modelBtns').addEventListener('click', e => {
+  const btn = e.target.closest('.model-btn');
+  if (!btn) return;
+  document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeModel = btn.dataset.model;
+  renderCards();
+});
+
+document.getElementById('langBtns').addEventListener('click', e => {
+  const btn = e.target.closest('.lang-btn');
+  if (!btn) return;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeLang = btn.dataset.lang;
+  renderCards();
+});
+</script>
+</body>
+</html>

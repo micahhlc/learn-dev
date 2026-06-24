@@ -1,0 +1,239 @@
+# ===========================
+# General
+# ===========================
+~/
+*cookie*
+.DS_Store
+Thumbs.db
+
+# REPLIT
+.replit
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories (General)
+node_modules/
+jspm_packages/
+bower_components/
+web_modules/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Coverage directories used by tools like istanbul, nyc
+coverage/
+*.lcov
+
+# nyc
+.nyc_output
+
+# Optional cache files
+.cache/
+.parcel-cache/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test/
+
+# ===========================
+# JavaScript / TypeScript (Vue, React, Next.js, Nuxt.js, etc.)
+# ===========================
+
+# TypeScript
+*.tsbuildinfo
+
+# JavaScript Frameworks (Vue, React, Next.js, Nuxt.js, Gatsby, Docusaurus)
+.next/
+.nuxt/
+.out/
+.cache/
+.vuepress/dist
+.temp
+.docusaurus
+.public/
+
+# Parcel
+.parcel-cache/
+
+# Serverless
+.serverless/
+
+# FuseBox
+.fusebox/
+
+# DynamoDB
+.dynamodb/
+
+# Microbundle
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional npm/yarn/pnpm cache and lock files
+.npm/
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# pnp
+.pnp.*
+.pnp.js
+
+# Optional eslint and stylelint cache
+.eslintcache
+.stylelintcache
+
+# ===========================
+# Python Related
+# ===========================
+
+# Python Bytecode and Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+
+# Build Artifacts
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Python Frameworks (Django, Flask, Scrapy, Sphinx)
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache
+.scrapy
+docs/_build/
+
+# Python Build Tools
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Python Version Managers
+.python-version
+
+# Dependency Managers
+Pipfile.lock
+poetry.lock
+pdm.lock
+.pdm.toml
+
+# PEP 582
+__pypackages__/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Python Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Python IDEs / Editors
+.spyderproject
+.spyproject
+.ropeproject
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+cython_debug/
+.idea/
+.vscode/
+
+# ===========================
+# Other Programming Languages
+# ===========================
+
+# mkdocs (Markdown documentation)
+.site
+
+# PyCharm IDE
+.idea/
+
+# Editor settings
+.vscode/

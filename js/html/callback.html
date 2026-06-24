@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="module">
+      import { checkCookie } from "./cookie.js";
+      // window.onload = function () { checkCookie(); };
+      
+
+      // // Call the onPageLoad function when the page is fully loaded
+      document.addEventListener("DOMContentLoaded", checkCookie, false);
+/*
+    While using window.onload is a valid approach and can serve the same purpose as DOMContentLoaded, 
+    it's important to note that DOMContentLoaded fires earlier, when the DOM is ready, but before stylesheets, images, 
+    and subframes have finished loading. In contrast, window.onload waits for all these resources to load.
+*/
+    </script>
+  </head>
+  <body>
+    <h1>JavaScript Functions</h1>
+    <h2>setInterval() with a Callback</h2>
+
+    <p>Wait 3 seconds (3000 milliseconds) for this page to change.</p>
+
+    <h1 id="demo"></h1>
+
+    <script>
+      setTimeout(function () {
+        myFunction("I love You !!!");
+      }, 3000);
+
+      function myFunction(value) {
+        if (value) {
+          document.getElementById("demo").innerHTML = value;
+        } else {
+          document.getElementById("demo").innerHTML = "something wrong";
+        }
+      }
+    </script>
+  </body>
+</html>

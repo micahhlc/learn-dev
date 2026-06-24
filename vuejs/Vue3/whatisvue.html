@@ -1,0 +1,26 @@
+<html>
+  <head>
+    <title>vue 3 example</title>
+    <script src="https://unpkg.com/vue@3"></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <p>Counter: {{counter}}</p>
+      <button @click="counter--">Remove</button>
+      <button @click="counter++">Add</button>
+      <p v-if="counter >= 15">clicked too many times.</p>
+    </div>
+
+    <script>
+      const { createApp, ref } = Vue;
+      createApp({
+        setup() {
+          const counter = ref(0);
+
+          return { counter };
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>

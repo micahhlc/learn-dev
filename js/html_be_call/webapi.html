@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>HTML Geolocation</h1>
+    <p>Click the button to get your coordinates.</p>
+
+    <button onclick="getPosition()">Try It</button>
+
+    <p id="demo"></p>
+
+    <script>
+      const x = document.getElementById("demo");
+
+      // function getPosition() {
+      //     return new Promise((resolve, reject) =>
+      //         navigator.geolocation.getCurrentPosition(resolve, reject)
+      //     );
+      // }
+
+      // getPosition()
+      //   .then((value) => {
+      //     showPosition(value);
+      //   })
+      //   .catch((err) => {
+      //     console.error(err.message);
+      //   });
+
+      // function showPosition(position) {
+      //   x.innerHTML = "Latitude: " + position.coords.latitude +
+      //   "<br>Longitude: " + position.coords.longitude;
+      // }
+
+      function getPosition() {
+        navigator.geolocation.getCurrentPosition(showPosition);
+      }
+
+      function showPosition(position) {
+        x.innerHTML =
+          "Latitude: " +
+          position.coords.latitude +
+          "<br>Longitude: " +
+          position.coords.longitude;
+      }
+    </script>
+  </body>
+</html>

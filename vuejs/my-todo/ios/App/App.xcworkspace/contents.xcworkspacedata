@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:App/AppDelegate.swift">
+   </FileRef>
+   <FileRef
+      location = "group:App/Assets.xcassets">
+   </FileRef>
+   <Group
+      location = "group:App/Base.lproj"
+      name = "Base.lproj">
+      <FileRef
+         location = "group:LaunchScreen.storyboard">
+      </FileRef>
+      <FileRef
+         location = "group:Main.storyboard">
+      </FileRef>
+   </Group>
+   <FileRef
+      location = "group:App/capacitor.config.json">
+   </FileRef>
+   <FileRef
+      location = "group:App/config.xml">
+   </FileRef>
+   <FileRef
+      location = "group:App/Info.plist">
+   </FileRef>
+   <Group
+      location = "group:App/public"
+      name = "public">
+      <FileRef
+         location = "group:index.html">
+      </FileRef>
+      <FileRef
+         location = "group:cordova.js">
+      </FileRef>
+      <FileRef
+         location = "group:favicon.png">
+      </FileRef>
+      <FileRef
+         location = "group:cordova_plugins.js">
+      </FileRef>
+      <Group
+         location = "group:assets"
+         name = "assets">
+         <FileRef
+            location = "group:index-CTtEKggq.css">
+         </FileRef>
+         <FileRef
+            location = "group:keyboard-legacy-C5U5ILD5.js">
+         </FileRef>
+         <FileRef
+            location = "group:ios.transition-C1zCHMfQ.js">
+         </FileRef>
+         <FileRef
+            location = "group:index-legacy-CotRoWON.js">
+         </FileRef>
+         <FileRef
+            location = "group:focus-visible-legacy-Ms0f_kOk.js">
+         </FileRef>
+         <FileRef
+            location = "group:index-BA6St0Ob.js">
+         </FileRef>
+         <FileRef
+            location = "group:keyboard-BjuWnl5e.js">
+         </FileRef>
+         <FileRef
+            location = "group:swipe-back-legacy-Cra0V9E-.js">
+         </FileRef>
+         <FileRef
+            location = "group:md.transition-legacy-DQrfSvPw.js">
+         </FileRef>
+         <FileRef
+            location = "group:status-tap-legacy-CDyo6XB-.js">
+         </FileRef>
+         <FileRef
+            location = "group:md.transition-Ba52ec61.js">
+         </FileRef>
+         <FileRef
+            location = "group:swipe-back-B4Ht-z6I.js">
+         </FileRef>
+         <FileRef
+            location = "group:index7-legacy-D_8fp8Z5.js">
+         </FileRef>
+         <FileRef
+            location = "group:ios.transition-legacy-BMOinRmN.js">
+         </FileRef>
+         <FileRef
+            location = "group:index3-CYP_-d-T.js">
+         </FileRef>
+         <FileRef
+            location = "group:index7-ERRmofBs.js">
+         </FileRef>
+         <FileRef
+            location = "group:input-shims-legacy-ITDcNfaw.js">
+         </FileRef>
+         <FileRef
+            location = "group:status-tap-Cr659JOZ.js">
+         </FileRef>
+         <FileRef
+            location = "group:index3-legacy-BbnMxLYM.js">
+         </FileRef>
+         <FileRef
+            location = "group:input-shims-BXl4RezI.js">
+         </FileRef>
+         <FileRef
+            location = "group:focus-visible-supuXXMI.js">
+         </FileRef>
+         <FileRef
+            location = "group:polyfills-legacy-BxYY_CU9.js">
+         </FileRef>
+      </Group>
+   </Group>
+   <FileRef
+      location = "group:App.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Pods/Pods.xcodeproj">
+   </FileRef>
+</Workspace>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <div id="demo">
+      <h2>The XMLHttpRequest Object</h2>
+      <button type="button" onclick="loadDoc()">Change Content</button>
+    </div>
+
+    <script>
+      async function loadDoc() {
+        try {
+          let res = await fetch('fetch_sample.txt');
+          let value = await res.text();
+          document.getElementById('demo').innerHTML = value;
+        } catch (err) {
+          console.log(err);
+        }
+      }
+
+      function loadDoc() {
+        fetch('fetch_sample.txt')
+          .then((res) => res.text())
+          .then((data) => (document.getElementById('demo').innerHTML = data))
+          .catch((err) => console.log(err));
+      }
+
+      /*
+      Both loadDoc functions achieve the same goal, which is to fetch the content of "sample.txt" and display it in an element with the id "demo".
+      However, there are some differences in their implementations:
+      Syntax: The first loadDoc function uses the async/await syntax, while the second one uses the Promise syntax with .then() and .catch().
+      Readability: The async/await syntax tends to be more concise and easier to read, especially for developers who are more familiar with
+      synchronous programming. On the other hand, the .then() and .catch() syntax in the second function is more explicit about the asynchronous nature of the operation.
+      Error handling: In the first function, error handling is done implicitly with try/catch around the await statements.
+      In the second function, error handling is done explicitly with the .catch() method.
+      Execution order: With async/await, the code reads more linearly, making it easier to reason about the execution order.
+      In the second function, the code is more nested, which may make it slightly harder to follow.
+      In summary, both approaches are valid and have their own advantages.
+      The choice between them often depends on personal preference and the specific requirements of the project.
+      Some developers may prefer the simplicity and readability of async/await, while others may prefer the explicitness of .then() and .catch().
+      */
+
+      /*
+            // GET request
+            fetch("https://example.com/data")
+              .then(response => response.text())
+              .then(data => console.log(data))
+              .catch(error => console.error(error));
+
+            // POST request
+            fetch("https://example.com/save", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              body: "data=value"
+            })
+            .then(response => response.text())
+            .then(data => console.log(data))
+            .catch(error => console.error(error));
+            */
+
+      /*
+            function loadDoc() {
+              const xhttp = new XMLHttpRequest();
+              xhttp.onload = function() {
+                document.getElementById("demo").innerHTML =
+                this.responseText;
+              }
+              xhttp.open("GET", "ajax_info.txt");
+              xhttp.send();
+            }
+            */
+    </script>
+  </body>
+</html>

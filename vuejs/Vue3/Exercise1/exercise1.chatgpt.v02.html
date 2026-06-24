@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Simple Quiz Game</title>
+    <script src="https://unpkg.com/vue@3"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 2em;
+      }
+      input {
+        font-size: 1em;
+        margin-right: 1em;
+      }
+      button {
+        font-size: 1em;
+      }
+      .correct {
+        color: green;
+      }
+      .wrong {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h2>Quiz Game</h2>
+      <div v-if="!gameOver">
+        <div>
+          <strong>Score: {{ score }}</strong>
+          <button @click="quitGame" style="float: right">Quit Game</button>
+        </div>
+        <p><strong>Time left: {{ timeLeft }}s</strong></p>
+        <div v-if="question">
+          <h3>{{ question }}</h3>
+          <input v-model="userAnswer" @keyup.enter="submitAnswer" autofocus />
+          <button @click="submitAnswer">Submit</button>
+        </div>
+        <p v-if="feedback" :class="feedbackClass">{{ feedback }}</p>
+      </div>
+      <div v-else>
+        <h3>Game Over!</h3>
+        <p>Your final score: {{ score }} / {{ questions.length }}</p>
+        <button @click="restartGame">Restart</button>
+      </div>
+    </div>
+
+    <script>
+      const { createApp, ref, computed, watch } = Vue;
+
+      createApp({
+        setup() {
+          // The list of questions and answers
+          const questions = ref([
+            "Capital of Japan?",
+            "2 + 2 = ?",
+            "Fastest land animal?",
+          ]);
+          const answers = ref(["Tokyo", "4", "Cheetah"]);
+
+          // State
+          const questionIndices = ref([]); // Shuffled indices
+          const currentIndex = ref(0);
+          const question = computed(() => {
+            return questions.value[questionIndices.value[currentIndex.value]];
+          });
+          const userAnswer = ref("");
+          const score = ref(0);
+          const feedback = ref("");
+          const feedbackClass = ref("");
+          const timeLeft = ref(10);
+          let timer = null;
+          const gameOver = ref(false);
+
+          // Shuffle questions
+          function shuffleQuestions() {
+            questionIndices.value = questions.value.map((_, i) => i);
+            for (let i = questionIndices.value.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [questionIndices.value[i], questionIndices.value[j]] = [
+                questionIndices.value[j],
+                questionIndices.value[i],
+              ];
+            }
+          }
+
+          function startTimer() {
+            timeLeft.value = 10;
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+              timeLeft.value--;
+              if (timeLeft.value <= 0) {
+                feedback.value = "⏰ Time's up!";
+                feedbackClass.value = "wrong";
+                nextQuestion();
+              }
+            }, 1000);
+          }
+
+          function submitAnswer() {
+            if (gameOver.value) return;
+            const correct =
+              userAnswer.value.trim().toLowerCase() ===
+              answers.value[
+                questionIndices.value[currentIndex.value]
+              ].toLowerCase();
+            if (correct) {
+              score.value++;
+              feedback.value = "✅ Correct!";
+              feedbackClass.value = "correct";
+            } else {
+              feedback.value = "❌ Wrong!";
+              feedbackClass.value = "wrong";
+            }
+            nextQuestion();
+          }
+
+          function nextQuestion() {
+            clearInterval(timer);
+            setTimeout(() => {
+              feedback.value = "";
+              userAnswer.value = "";
+              currentIndex.value++;
+              if (currentIndex.value >= questions.value.length) {
+                gameOver.value = true;
+              } else {
+                startTimer();
+              }
+            }, 1000);
+          }
+
+          function quitGame() {
+            clearInterval(timer);
+            gameOver.value = true;
+          }
+
+          function restartGame() {
+            score.value = 0;
+            feedback.value = "";
+            feedbackClass.value = "";
+            gameOver.value = false;
+            userAnswer.value = "";
+            currentIndex.value = 0;
+            shuffleQuestions();
+            startTimer();
+          }
+
+          // Start the game on mount
+          shuffleQuestions();
+          startTimer();
+
+          // Clean up on page unload
+          window.addEventListener("beforeunload", () => clearInterval(timer));
+
+          return {
+            questions,
+            question,
+            userAnswer,
+            score,
+            timeLeft,
+            submitAnswer,
+            feedback,
+            feedbackClass,
+            gameOver,
+            quitGame,
+            restartGame,
+          };
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
